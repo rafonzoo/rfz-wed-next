@@ -1,0 +1,28 @@
+{
+  "cover": {
+    "label": "attributes-cover",
+    "image": {
+      "url": "/IMG_1568.jpg",
+      "size": "auto 120%",
+      "position": "50% 60%"
+    }
+  },
+  "section": {
+    "intro": [
+      {
+        "label": "attributes-intro-1",
+        "image": {
+          "url": "/IMG_1568.jpg",
+          "caption": {
+            "text": "We are\\nmarried!!",
+            "placement": "top right"
+          }
+        },
+        "text": {
+          "body": "lorem",
+          "icon": "ipsum"
+        }
+      }
+    ]
+  }
+}
