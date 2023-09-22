@@ -1,9 +1,6 @@
-import { getAllWedding } from '@/wedding/query'
 import Link from 'next/link'
 
 const Homepage = async () => {
-  const weddings = await getAllWedding()
-
   return (
     <main>
       {/* <p>All wedding:</p>
