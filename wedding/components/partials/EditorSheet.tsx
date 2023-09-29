@@ -46,7 +46,7 @@ const EditorSheetImage: RFC = () => {
       <GroupFieldMain>
         <GroupFieldItem label='Landscape' className='flex items-center'>
           <Switch
-            active={!!state.orientation?.landscape}
+            active={!state.orientation?.portrait}
             onChange={handleOrientation}
           />
         </GroupFieldItem>
@@ -83,7 +83,7 @@ const EditorSheetImage: RFC = () => {
 
 const EditorSheet: RFC = () => {
   return (
-    <div className='h-[1000px] px-4'>
+    <div className='px-4'>
       <Tabs
         items={[
           {

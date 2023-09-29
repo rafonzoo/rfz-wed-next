@@ -109,7 +109,7 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
       }
 
       return () => {
-        if (!show) {
+        if (current.onload) {
           current.onload = false
         }
       }
@@ -162,21 +162,21 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
             <div
               onAnimationEnd={handleUnmount}
               className={tw({
-                'flex h-[75%] flex-col overflow-y-auto rounded-tl-3xl rounded-tr-3xl': true, // prettier-ignore
+                'flex h-[75%] flex-col overflow-hidden rounded-tl-3xl rounded-tr-3xl': true, // prettier-ignore
                 'absolute bottom-0 left-0 z-[1] w-full bg-white dark:bg-zinc-800': true, // prettier-ignore
                 'translate-y-0 animate-slide-up': show,
                 'translate-y-full animate-slide-down': !show,
               })}
             >
-              <div className='sticky top-0 z-[1] w-full bg-white px-6 py-4 dark:bg-zinc-800'>
+              <div className='w-full bg-white p-4 dark:bg-zinc-800'>
                 <div className='relative grid grid-cols-[1fr_auto_1fr]'>
                   <div className='relative'>
-                    <div className='absolute -left-1 top-1/2 flex -translate-y-1/2 items-center'>
+                    <div className='absolute -left-1.5 top-1/2 flex -translate-y-1/2 items-center'>
                       <Button
                         model='icon'
                         ref={(ref) => (mutable.current.overlay = ref)}
                         onClick={handleClose}
-                        className='text-icon !rounded-full text-zinc-300'
+                        className='!rounded-full text-icon text-zinc-300'
                       >
                         <GoXCircleFill />
                       </Button>
@@ -193,12 +193,14 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
                         ),
                       })}
                     >
-                      OK
+                      Simpan
                     </button>
                   </div>
                 </div>
               </div>
-              <div className='relative z-0'>{children}</div>
+              <div className='relative h-full overflow-y-auto overflow-x-hidden'>
+                {children}
+              </div>
             </div>
           </div>,
           document.body

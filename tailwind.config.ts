@@ -18,7 +18,7 @@ const config: Config = {
         elevated: ['19px', '25px'],
         lead: ['21px', '26px'],
         good: ['24px', '20px'],
-        icon: ['28px', '32px'],
+        icon: ['30px', '36px'],
       },
       letterSpacing: {
         base: '0.013em',
