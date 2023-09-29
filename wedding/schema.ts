@@ -79,3 +79,6 @@ export const weddingPage = z.object({
   params: z.object({ couple: z.string() }),
   searchParams: z.object({ to: z.string().optional() }),
 })
+
+export type WeddingEditorSheet = z.infer<typeof weddingEditorSheet>
+export const weddingEditorSheet = weddingImageType

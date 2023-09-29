@@ -1,7 +1,8 @@
 'use client'
 
 import type { RFC, Tag } from '@/type'
-import { capitalize, cn } from '@/tools/helper'
+import { capitalize } from '@/tools/helper'
+import { tw } from '@/lib'
 
 interface TableFieldItem extends Tag<'input'> {
   icon?: boolean
@@ -38,7 +39,7 @@ const TableField: RFC<TableFieldProps> = ({ items }) => {
               type={input.type ?? 'text'}
               id={input.id ?? `:${input.name}:`}
               autoComplete={input.autoComplete ?? 'off'}
-              className={cn(
+              className={tw(
                 index === 0 && 'rounded-tr-xl',
                 index === items.length - 1 && 'rounded-br-xl',
                 input.className + ' h-11 w-full px-3',

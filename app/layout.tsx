@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import type { RFC } from '@/type'
-import { cn } from '@/tools/helper'
+import { tw } from '@/lib'
 import { Inter } from 'next/font/google'
 import './globals.css'
 
@@ -15,9 +15,9 @@ const RootLayout: RFC = ({ children }) => {
   return (
     <html lang='en' className='antialiased'>
       <body
-        className={cn(
+        className={tw(
           inter.className,
-          'font-inter min-w-[320px] text-base -tracking-base text-black dark:bg-black dark:text-gray-200'
+          'font-inter min-w-[320px] text-base -tracking-base text-black dark:bg-black dark:text-white'
         )}
       >
         {children}
