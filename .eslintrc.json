@@ -1,5 +1,9 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended", "prettier"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "plugins": ["@typescript-eslint", "import", "unused-imports"],
   "parser": "@typescript-eslint/parser",
   "rules": {
@@ -45,18 +49,13 @@
             "position": "before"
           },
           {
-            "pattern": "**/components/Base",
-            "group": "internal",
+            "pattern": "**/components/Form/**",
+            "group": "external",
             "position": "before"
           },
           {
             "pattern": "**/components/**",
             "group": "external",
-            "position": "after"
-          },
-          {
-            "pattern": "**/templates/**",
-            "group": "internal",
             "position": "after"
           }
         ],

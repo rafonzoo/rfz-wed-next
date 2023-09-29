@@ -13,7 +13,9 @@ const Homepage = async () => {
           </li>
         ))}
       </ul> */}
-      <Link href='/ui'>Go to RFZ UI page</Link>
+      <Link href={`/yossy-rafa?to=${encodeURI('alif')}`}>
+        Go to RFZ UI page
+      </Link>
     </main>
   )
 }
