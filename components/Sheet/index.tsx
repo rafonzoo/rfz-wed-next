@@ -42,16 +42,19 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
     const [state, setState] = useState<SheetState>(defaultValue)
     const [unmount, setUnmount] = useState(!show)
 
+    const sheetElement = useRef<HTMLDivElement | null>(null)
     const mutable = useRef<{
       sheetId: string
       initial: SheetState
       onload: boolean
       overlay: HTMLButtonElement | null
+      focusableItems: HTMLElement[]
     }>({
       sheetId: useId(),
       initial: state,
       onload: false,
       overlay: null,
+      focusableItems: [],
     })
 
     const handleSave = () => {
@@ -59,6 +62,7 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
 
       // Record...
       mutable.current.initial = state
+      triggerRef?.current?.focus()
     }
 
     const handleUnmount = () => {
@@ -76,11 +80,50 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
       triggerRef?.current?.focus()
     }
 
-    // NOTE: DONT TRY THIS AT HOME! ONLY FOR THIS CASE.
+    const handleFocus = (e: KeyboardEvent) => {
+      if (!sheetElement.current) return
+
+      const current = document.activeElement as HTMLElement
+      mutable.current.focusableItems = Array.from(
+        sheetElement.current.querySelectorAll<HTMLElement>(
+          [
+            'button:not([disabled]):not([tabindex="-1"])',
+            'input:not([disabled]):not([tabindex="-1"])',
+            'select:not([disabled]):not([tabindex="-1"])',
+            'textarea:not([disabled]):not([tabindex="-1"])',
+            'iframe:not([disabled]):not([tabindex="-1"])',
+            'a:not([disabled]):not([tabindex="-1"])',
+            '[tabindex]:not([tabindex="-1"])',
+            '[contentEditable=true]:not([tabindex="-1"])',
+          ].join(',')
+        )
+      )
+
+      const items = mutable.current.focusableItems
+      const { isFirstFocus, isLastFocus } = {
+        isFirstFocus: current === items[0],
+        isLastFocus: current === items[items.length - 1],
+      }
+
+      if (isLastFocus && !e.shiftKey) {
+        items[0].focus()
+
+        e.preventDefault()
+      }
+
+      if (isFirstFocus && e.shiftKey) {
+        items[items.length - 1].focus()
+
+        e.preventDefault()
+      }
+    }
+
+    // prettier-ignore
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        return handleClose()
+    const handleAccessibility = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Escape': return handleClose()
+        case 'Tab':    return handleFocus(e)
       }
     }
 
@@ -116,12 +159,12 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
     }, [show])
 
     useEffect(() => {
-      window.addEventListener('keyup', handleEscape)
+      window.addEventListener('keydown', handleAccessibility)
 
       return () => {
-        window.removeEventListener('keyup', handleEscape)
+        window.removeEventListener('keydown', handleAccessibility)
       }
-    }, [handleEscape])
+    }, [handleAccessibility])
 
     // Accessibility effect
     useLayoutEffect(() => {
@@ -150,6 +193,7 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
           <div
             role='dialog'
             id={mutable.current.sheetId}
+            ref={sheetElement}
             className='fixed left-0 top-0 z-30 h-full w-full'
           >
             <div
