@@ -81,4 +81,6 @@ export const weddingPage = z.object({
 })
 
 export type WeddingEditorSheet = z.infer<typeof weddingEditorSheet>
-export const weddingEditorSheet = weddingImageType
+export const weddingEditorSheet = z.object({
+  image: weddingImageType.nullable(),
+})

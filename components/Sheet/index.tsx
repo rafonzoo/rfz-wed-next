@@ -11,31 +11,35 @@ import { createPortal } from 'react-dom'
 import Button from '@/components/Button'
 
 interface Sheet<T = {}> {
-  show: boolean
+  title: string
+  show?: boolean
   children?: ReactNode
-  title?: string
   triggerRef?: MutableRefObject<HTMLElement | null>
+  closeAfterSave?: boolean
   onClose?: () => void
   onSave?: (state: T) => void
 }
 
-const CONTEXT_SHEET = {
+const SHEET_CONTEXT = {
   editor: contextCreator<WeddingEditorSheet>({
-    url: '',
-    orientation: { portrait: 'center' },
+    image: {
+      url: '',
+      orientation: { portrait: 'center' },
+    },
   }),
 }
 
-const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
-  const CurrentContext = CONTEXT_SHEET[ctx].context
-  const defaultValue = CONTEXT_SHEET[ctx].value
+const SheetAPI = <T extends keyof typeof SHEET_CONTEXT>(ctx: T) => {
+  const CurrentContext = SHEET_CONTEXT[ctx].context
+  const defaultValue = SHEET_CONTEXT[ctx].value
 
-  type SheetState = (typeof CONTEXT_SHEET)[T]['value']
+  type SheetState = (typeof SHEET_CONTEXT)[T]['value']
   const ActualSheet: RFC<Sheet<SheetState>> = ({
-    show,
     title,
-    children,
-    triggerRef,
+    show = false,
+    closeAfterSave = false,
+    triggerRef = null,
+    children = null,
     onClose,
     onSave,
   }) => {
@@ -47,27 +51,25 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
       sheetId: string
       initial: SheetState
       onload: boolean
-      overlay: HTMLButtonElement | null
+      closeIcon: HTMLButtonElement | null
       focusableItems: HTMLElement[]
+      closeAfterSave: boolean
     }>({
       sheetId: useId(),
       initial: state,
       onload: false,
-      overlay: null,
+      closeIcon: null,
       focusableItems: [],
+      closeAfterSave,
     })
 
     const handleSave = () => {
       onSave?.(state)
+      mutable.current.initial = state // Record...
 
-      // Record...
-      mutable.current.initial = state
-      triggerRef?.current?.focus()
-    }
-
-    const handleUnmount = () => {
-      if (!show) {
-        setUnmount(true)
+      if (mutable.current.closeAfterSave) {
+        onClose?.()
+        triggerRef?.current?.focus()
       }
     }
 
@@ -93,7 +95,7 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
             'textarea:not([disabled]):not([tabindex="-1"])',
             'iframe:not([disabled]):not([tabindex="-1"])',
             'a:not([disabled]):not([tabindex="-1"])',
-            '[tabindex]:not([tabindex="-1"])',
+            '[tabindex]:not([tabindex="-1"]):not([data-aof])',
             '[contentEditable=true]:not([tabindex="-1"])',
           ].join(',')
         )
@@ -173,12 +175,12 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
 
       // Skip focus on client load
       if (current.onload) {
-        ;(unmount ? currentTrigger : current.overlay)?.focus()
+        ;(unmount ? currentTrigger : current.closeIcon)?.focus()
       }
 
       return () => {
         if (!current.onload) {
-          ;[current.overlay, currentTrigger].forEach((curr) => curr?.blur())
+          ;[current.closeIcon, currentTrigger].forEach((curr) => curr?.blur())
         }
       }
     }, [triggerRef, unmount])
@@ -197,14 +199,17 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
             className='fixed left-0 top-0 z-30 h-full w-full'
           >
             <div
+              data-aof // AOF: Avoid Overlay Focus
+              tabIndex={0}
+              onClick={handleClose}
               className={tw({
-                'absolute left-0 top-0 z-0 h-full w-full bg-black/30 outline-none': true, // prettier-ignore
+                'absolute left-0 top-0 z-0 h-full w-full bg-black/30 outline-none cursor-pointer': true, // prettier-ignore
                 'animate-fade-in opacity-100': show,
                 'animate-fade-out opacity-0': !show,
               })}
             ></div>
             <div
-              onAnimationEnd={handleUnmount}
+              onAnimationEnd={() => !show && setUnmount(true)}
               className={tw({
                 'flex h-[75%] flex-col overflow-hidden rounded-tl-3xl rounded-tr-3xl': true, // prettier-ignore
                 'absolute bottom-0 left-0 z-[1] w-full bg-white dark:bg-zinc-800': true, // prettier-ignore
@@ -217,10 +222,9 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
                   <div className='relative'>
                     <div className='absolute -left-1.5 top-1/2 flex -translate-y-1/2 items-center'>
                       <Button
-                        model='icon'
-                        ref={(ref) => (mutable.current.overlay = ref)}
+                        variant='icon'
+                        ref={(ref) => (mutable.current.closeIcon = ref)}
                         onClick={handleClose}
-                        className='!rounded-full text-icon text-zinc-300'
                       >
                         <GoXCircleFill />
                       </Button>
@@ -228,7 +232,7 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
                   </div>
                   <p className='text-center font-semibold'>{title}</p>
                   <div className='text-right'>
-                    <button
+                    <Button
                       onClick={handleSave}
                       className={tw('text-blue-600', {
                         invisible: isObjectEqual(
@@ -237,8 +241,8 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
                         ),
                       })}
                     >
-                      Simpan
-                    </button>
+                      OK
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -256,5 +260,5 @@ const SheetAPI = <T extends keyof typeof CONTEXT_SHEET>(ctx: T) => {
   return ActualSheet
 }
 
-export { CONTEXT_SHEET }
+export { SHEET_CONTEXT as CONTEXT_SHEET }
 export default SheetAPI

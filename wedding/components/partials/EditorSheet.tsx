@@ -8,36 +8,53 @@ import Switch from '@/components/Switch'
 import Button from '@/components/Button'
 
 const EditorSheetImage: RFC = () => {
-  const [state, setState] = useSheet('editor')
+  const [{ image }, setState] = useSheet('editor')
   const placement = useRef<'center' | 'left' | 'right'>(
-    state.orientation?.landscape ?? 'center'
+    image?.orientation?.landscape ?? 'center'
   )
 
   function handleOrientation(val: boolean) {
-    setState((prev) => ({
-      ...prev,
-      orientation: val
-        ? { landscape: prev.orientation?.landscape ?? placement.current }
-        : { portrait: 'center' },
-    }))
+    setState((prev) =>
+      !prev.image
+        ? { ...prev }
+        : {
+            ...prev,
+            image: {
+              ...prev.image,
+              orientation: val
+                ? {
+                    landscape:
+                      prev.image.orientation?.landscape ?? placement.current,
+                  }
+                : { portrait: 'center' },
+            },
+          }
+    )
   }
 
   function handlePlacement(key: typeof placement.current) {
     if (!isMatchedPlacement(key)) {
       placement.current = key
 
-      setState((prev) => ({
-        ...prev,
-        orientation: { landscape: key },
-      }))
+      setState((prev) =>
+        !prev.image
+          ? { ...prev }
+          : {
+              ...prev,
+              image: {
+                ...prev.image,
+                orientation: { landscape: key },
+              },
+            }
+      )
     }
   }
 
   function isMatchedPlacement(key: typeof placement.current) {
     // prettier-ignore
     return (
-      state.orientation?.landscape &&
-      state.orientation.landscape === key
+      image?.orientation?.landscape &&
+      image?.orientation.landscape === key
     )
   }
 
@@ -46,11 +63,11 @@ const EditorSheetImage: RFC = () => {
       <GroupFieldMain>
         <GroupFieldItem label='Landscape' className='flex items-center'>
           <Switch
-            active={!state.orientation?.portrait}
+            active={!image?.orientation?.portrait}
             onChange={handleOrientation}
           />
         </GroupFieldItem>
-        <GroupFieldItem hide={!!state.orientation?.portrait}>
+        <GroupFieldItem hide={!!image?.orientation?.portrait}>
           <div className={tw('flex flex-col justify-center')}>
             {[
               {
@@ -82,6 +99,7 @@ const EditorSheetImage: RFC = () => {
 }
 
 const EditorSheet: RFC = () => {
+  console.log('ssss')
   return (
     <div className='px-4'>
       <Tabs
